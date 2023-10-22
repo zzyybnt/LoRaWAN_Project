@@ -10,14 +10,13 @@
 #include "common.h"
 #include "ST7789v.h"
 
-#define TIM3_SENSORS_DELAY_SECOND (3)
-
 extern DEVICE_MODE_T device_mode;
 extern DEVICE_MODE_T *Device_Mode_str;
 down_list_t *pphead = NULL;
 uint16_t Tim3_Counter = 0;
 uint8_t *DevEui = "009569000000F554";
-static SensorsData_t SensorsData[3];
+static SensorsData_t SensorsData;
+uint8_t SensorsCnt = 0;
 
 //-----------------Users application--------------------------
 void LoRaWAN_Func_Process(void)
@@ -90,7 +89,7 @@ void LoRaWAN_Func_Process(void)
         else if (UART_TO_PC_RECEIVE_FLAG && (GET_BUSY_LEVEL == 0))
         {
             UART_TO_PC_RECEIVE_FLAG = 0;
-            debug_printf("--> Warning: Don't send data now! Module is busy!\r\n");
+            debug_printf("-. Warning: Don't send data now! Module is busy!\r\n");
         }
 
         /* 等待lpuart1产生中断 */
@@ -114,20 +113,98 @@ void LoRaWAN_Func_Process(void)
             LCD_ShowString(5, 5, "[Project Mode]", BLUE);
             LCD_ShowString(5, 5 + (1 * 16), "[DevEui]:", BLUE);
             LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLUE);
+            // 初始化计时器
+            SensorsCnt = 0;
+            // 初始化结构体
+            memset(&SensorsData, 0, sizeof(SensorsData_t));
+            SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
+            SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
+            SensorsData.Min.Temper_HDC1000 = 0xffff;
+            SensorsData.Min.Humidi_HDC1000 = 0xffff;
         }
 
         /* 你的实验代码位置 */
         if (Tim3_Counter == TIM3_SENSORS_DELAY_SECOND * 100)
         {
-            SensorsData[0].Lux_OPT3001 = OPT3001_Get_Lux();
-            SensorsData[0].Pressure_MPL3115 = MPL3115_ReadPressure();
-            SensorsData[0].Temper_HDC1000 = HDC1000_Read_Temper();
-            SensorsData[0].Temper_HDC1000 = HDC1000_Read_Humidi();
-            debug_printf("%f, %f, %d, %d",
-                         SensorsData[0].Lux_OPT3001,
-                         SensorsData[0].Pressure_MPL3115,
-                         SensorsData[0].Temper_HDC1000,
-                         SensorsData[0].Humidi_HDC1000);
+            SensorsData.Data.Lux_OPT3001[SensorsCnt] = OPT3001_Get_Lux();
+            SensorsData.Data.Pressure_MPL3115[SensorsCnt] = MPL3115_ReadPressure();
+            SensorsData.Data.Temper_HDC1000[SensorsCnt] = HDC1000_Read_Temper();
+            SensorsData.Data.Humidi_HDC1000[SensorsCnt] = HDC1000_Read_Humidi();
+            // 求最大值
+            // clang-format off
+            SensorsData.Data.Lux_OPT3001[SensorsCnt]       >= SensorsData.Max.Lux_OPT3001 
+                                                            ?  SensorsData.Max.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Pressure_MPL3115[SensorsCnt]  >= SensorsData.Max.Pressure_MPL3115 
+                                                            ?  SensorsData.Max.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Temper_HDC1000[SensorsCnt]    >= SensorsData.Max.Temper_HDC1000 
+                                                            ?  SensorsData.Max.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Humidi_HDC1000[SensorsCnt]    >= SensorsData.Max.Humidi_HDC1000 
+                                                            ?  SensorsData.Max.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000[SensorsCnt] 
+                                                            :  NULL; 
+            // 求最小值
+            SensorsData.Data.Lux_OPT3001[SensorsCnt]       <= SensorsData.Min.Lux_OPT3001 
+                                                            ?  SensorsData.Min.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Pressure_MPL3115[SensorsCnt]  <= SensorsData.Min.Pressure_MPL3115 
+                                                            ?  SensorsData.Min.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Temper_HDC1000[SensorsCnt]    <= SensorsData.Min.Temper_HDC1000 
+                                                            ?  SensorsData.Min.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000[SensorsCnt] 
+                                                            :  NULL; 
+            SensorsData.Data.Humidi_HDC1000[SensorsCnt]    <= SensorsData.Min.Humidi_HDC1000 
+                                                            ?  SensorsData.Min.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000[SensorsCnt] 
+                                                            :  NULL;
+
+            // clang-format on
+            if (SensorsCnt == 9)
+            {
+
+                for (int i = 0; i < 10; i++)
+                {
+                    SensorsData.Average.Lux_OPT3001 += SensorsData.Data.Lux_OPT3001[i];
+                    SensorsData.Average.Pressure_MPL3115 += SensorsData.Data.Pressure_MPL3115[i];
+                    SensorsData.Average.Temper_HDC1000 += SensorsData.Data.Temper_HDC1000[i];
+                    SensorsData.Average.Humidi_HDC1000 += SensorsData.Data.Humidi_HDC1000[i];
+                }
+                SensorsData.Average.Lux_OPT3001 -= SensorsData.Max.Lux_OPT3001;
+                SensorsData.Average.Pressure_MPL3115 -= SensorsData.Max.Pressure_MPL3115;
+                SensorsData.Average.Temper_HDC1000 -= SensorsData.Max.Temper_HDC1000;
+                SensorsData.Average.Humidi_HDC1000 -= SensorsData.Max.Humidi_HDC1000;
+
+                SensorsData.Average.Lux_OPT3001 -= SensorsData.Min.Lux_OPT3001;
+                SensorsData.Average.Pressure_MPL3115 -= SensorsData.Min.Pressure_MPL3115;
+                SensorsData.Average.Temper_HDC1000 -= SensorsData.Min.Temper_HDC1000;
+                SensorsData.Average.Humidi_HDC1000 -= SensorsData.Min.Humidi_HDC1000;
+
+                SensorsData.Average.Lux_OPT3001 /= 8;
+                SensorsData.Average.Pressure_MPL3115 /= 8;
+                SensorsData.Average.Temper_HDC1000 /= 8;
+                SensorsData.Average.Humidi_HDC1000 /= 8;
+
+                debug_printf("平均数据：%f, %f, %d, %d",
+                             SensorsData.Average.Lux_OPT3001,
+                             SensorsData.Average.Pressure_MPL3115,
+                             SensorsData.Average.Temper_HDC1000,
+                             SensorsData.Average.Humidi_HDC1000);
+
+                // 初始化结构体
+                memset(&SensorsData, 0, sizeof(SensorsData_t));
+                SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
+                SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
+                SensorsData.Min.Temper_HDC1000 = 0xffffffff;
+                SensorsData.Min.Humidi_HDC1000 = 0xffffffff;
+            }
+
+            debug_printf("最大值数据：%f, %f, %d, %d",
+                         SensorsData.Max.Lux_OPT3001,
+                         SensorsData.Max.Pressure_MPL3115,
+                         SensorsData.Max.Temper_HDC1000,
+                         SensorsData.Max.Humidi_HDC1000);
+
+            SensorsCnt == SENSORS_DATA_BUF_NUM - 1 ? SensorsCnt = 0 : SensorsCnt++;
         }
     }
     break;
@@ -148,11 +225,11 @@ void LoRaWAN_Borad_Info_Print(void)
     debug_printf("\r\n\r\n");
     PRINT_CODE_VERSION_INFO("%s", CODE_VERSION);
     debug_printf("\r\n");
-    debug_printf("--> Press Key1 to: \r\n");
-    debug_printf("-->  - Enter command Mode\r\n");
-    debug_printf("-->  - Enter Transparent Mode\r\n");
-    debug_printf("--> Press Key2 to: \r\n");
-    debug_printf("-->  - Enter Project Trainning Mode\r\n");
+    debug_printf("-. Press Key1 to: \r\n");
+    debug_printf("-.  - Enter command Mode\r\n");
+    debug_printf("-.  - Enter Transparent Mode\r\n");
+    debug_printf("-. Press Key2 to: \r\n");
+    debug_printf("-.  - Enter Project Trainning Mode\r\n");
     LEDALL_ON;
     HAL_Delay(100);
     LEDALL_OFF;
@@ -164,6 +241,5 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         // 用户代码
         Tim3_Counter == (TIM3_SENSORS_DELAY_SECOND * 100) ? Tim3_Counter = 0 : Tim3_Counter++;
-
     }
 }

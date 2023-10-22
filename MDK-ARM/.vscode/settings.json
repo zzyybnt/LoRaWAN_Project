@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "sensors_test.h": "c",
+        "opt3001.h": "c"
+    }
+}
