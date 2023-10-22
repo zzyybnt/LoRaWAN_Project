@@ -131,6 +131,7 @@ void LoRaWAN_Func_Process(void)
         /* 你的实验代码位置 */
         if (Tim3_Counter == Tim3_Sensors_Delay_Secend * 100)
         {
+            // 开始获取传感器数值
             if (SensorsCnt == 0)
             {
                 // 初始化结构体
@@ -151,6 +152,13 @@ void LoRaWAN_Func_Process(void)
             SensorsData.Data.Pressure_MPL3115[SensorsCnt] = MPL3115_ReadPressure();
             SensorsData.Data.Temper_HDC1000[SensorsCnt] = HDC1000_Read_Temper();
             SensorsData.Data.Humidi_HDC1000[SensorsCnt] = HDC1000_Read_Humidi();
+
+            debug_printf("当前数据：%f, %f, %d, %d",
+                         SensorsData.Data.Lux_OPT3001[SensorsCnt],
+                         SensorsData.Data.Pressure_MPL3115[SensorsCnt],
+                         SensorsData.Data.Temper_HDC1000[SensorsCnt],
+                         SensorsData.Data.Humidi_HDC1000[SensorsCnt]);
+
             // 求最大值
             // clang-format off
             SensorsData.Data.Lux_OPT3001[SensorsCnt]       >= SensorsData.Max.Lux_OPT3001 
@@ -180,6 +188,7 @@ void LoRaWAN_Func_Process(void)
                                                             :  NULL;
 
             // clang-format on
+            // 获取传感器数值结束，数据处理
             if (SensorsCnt == SenSors_Data_Buf_Num - 1)
             {
 
@@ -190,6 +199,7 @@ void LoRaWAN_Func_Process(void)
                     SensorsData.Average.Temper_HDC1000 += SensorsData.Data.Temper_HDC1000[i];
                     SensorsData.Average.Humidi_HDC1000 += SensorsData.Data.Humidi_HDC1000[i];
                 }
+
                 SensorsData.Average.Lux_OPT3001 -= SensorsData.Max.Lux_OPT3001;
                 SensorsData.Average.Pressure_MPL3115 -= SensorsData.Max.Pressure_MPL3115;
                 SensorsData.Average.Temper_HDC1000 -= SensorsData.Max.Temper_HDC1000;
@@ -200,10 +210,10 @@ void LoRaWAN_Func_Process(void)
                 SensorsData.Average.Temper_HDC1000 -= SensorsData.Min.Temper_HDC1000;
                 SensorsData.Average.Humidi_HDC1000 -= SensorsData.Min.Humidi_HDC1000;
 
-                SensorsData.Average.Lux_OPT3001 /= SenSors_Data_Buf_Num - 2;
-                SensorsData.Average.Pressure_MPL3115 /= SenSors_Data_Buf_Num - 2;
-                SensorsData.Average.Temper_HDC1000 /= SenSors_Data_Buf_Num - 2;
-                SensorsData.Average.Humidi_HDC1000 /= SenSors_Data_Buf_Num - 2;
+                SensorsData.Average.Lux_OPT3001 /= (SenSors_Data_Buf_Num - 2);
+                SensorsData.Average.Pressure_MPL3115 /= (SenSors_Data_Buf_Num - 2);
+                SensorsData.Average.Temper_HDC1000 /= (SenSors_Data_Buf_Num - 2);
+                SensorsData.Average.Humidi_HDC1000 /= (SenSors_Data_Buf_Num - 2);
 
                 debug_printf("平均数据：%f, %f, %d, %d",
                              SensorsData.Average.Lux_OPT3001,
@@ -217,12 +227,6 @@ void LoRaWAN_Func_Process(void)
                 free(SensorsData.Data.Temper_HDC1000);
                 free(SensorsData.Data.Humidi_HDC1000);
             }
-
-            debug_printf("当前数据：%f, %f, %d, %d",
-                         SensorsData.Data.Lux_OPT3001[SensorsCnt],
-                         SensorsData.Data.Pressure_MPL3115[SensorsCnt],
-                         SensorsData.Data.Temper_HDC1000[SensorsCnt],
-                         SensorsData.Data.Humidi_HDC1000[SensorsCnt]);
 
             SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;
         }
