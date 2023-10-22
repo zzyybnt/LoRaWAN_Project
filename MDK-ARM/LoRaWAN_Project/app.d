@@ -1,5 +1,6 @@
 lorawan_project\app.o: ..\app\app.c
 lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 lorawan_project\app.o: ../Inc/app.h
 lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 lorawan_project\app.o: ../Core/Inc/usart.h
@@ -41,7 +42,6 @@ lorawan_project\app.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex
 lorawan_project\app.o: ../Core/Inc/gpio.h
 lorawan_project\app.o: ../Inc/board/lorawan_node_driver.h
 lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 lorawan_project\app.o: ../Inc/common/common.h
 lorawan_project\app.o: ../Inc/board/sensors/hdc1000.h
 lorawan_project\app.o: ../Inc/board/sensors/opt3001.h

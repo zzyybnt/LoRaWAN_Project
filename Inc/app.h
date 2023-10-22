@@ -13,17 +13,14 @@
 /** 入网超时时间：120s */
 #define JOIN_TIME_120_SEC 120
 
-#define TIM3_SENSORS_DELAY_SECOND (3)
-#define SENSORS_DATA_BUF_NUM (10)
-
 typedef struct
 {
     struct
     {
-        float Lux_OPT3001[SENSORS_DATA_BUF_NUM];
-        float Pressure_MPL3115[SENSORS_DATA_BUF_NUM];
-        uint32_t Temper_HDC1000[SENSORS_DATA_BUF_NUM];
-        uint32_t Humidi_HDC1000[SENSORS_DATA_BUF_NUM];
+        float* Lux_OPT3001;
+        float* Pressure_MPL3115;
+        uint32_t* Temper_HDC1000;
+        uint32_t* Humidi_HDC1000;
     } Data;
     struct
     {

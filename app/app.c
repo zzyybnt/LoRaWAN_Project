@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "app.h"
 #include "usart.h"
 #include "gpio.h"
@@ -13,10 +14,14 @@
 extern DEVICE_MODE_T device_mode;
 extern DEVICE_MODE_T *Device_Mode_str;
 down_list_t *pphead = NULL;
+
 uint16_t Tim3_Counter = 0;
 uint8_t *DevEui = "009569000000F554";
-static SensorsData_t SensorsData;
+
+extern uint8_t Tim3_Sensors_Delay_Secend = 3;
+extern uint8_t SenSors_Data_Buf_Num = 10;
 uint8_t SensorsCnt = 0;
+SensorsData_t SensorsData; // 创建结构体实例
 
 //-----------------Users application--------------------------
 void LoRaWAN_Func_Process(void)
@@ -24,6 +29,14 @@ void LoRaWAN_Func_Process(void)
     static DEVICE_MODE_T dev_stat = NO_MODE;
 
     uint16_t temper = 0;
+
+    if ((uint8_t)device_mode != PRO_TRAINING_MODE)
+    {
+        free(SensorsData.Data.Lux_OPT3001);
+        free(SensorsData.Data.Pressure_MPL3115);
+        free(SensorsData.Data.Temper_HDC1000);
+        free(SensorsData.Data.Humidi_HDC1000);
+    }
 
     switch ((uint8_t)device_mode)
     {
@@ -113,19 +126,27 @@ void LoRaWAN_Func_Process(void)
             LCD_ShowString(5, 5, "[Project Mode]", BLUE);
             LCD_ShowString(5, 5 + (1 * 16), "[DevEui]:", BLUE);
             LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLUE);
-            // 初始化计时器
-            SensorsCnt = 0;
-            // 初始化结构体
-            memset(&SensorsData, 0, sizeof(SensorsData_t));
-            SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
-            SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
-            SensorsData.Min.Temper_HDC1000 = 0xffff;
-            SensorsData.Min.Humidi_HDC1000 = 0xffff;
         }
 
         /* 你的实验代码位置 */
-        if (Tim3_Counter == TIM3_SENSORS_DELAY_SECOND * 100)
+        if (Tim3_Counter == Tim3_Sensors_Delay_Secend * 100)
         {
+            if (SensorsCnt == 0)
+            {
+                // 初始化结构体
+                memset(&SensorsData, 0, sizeof(SensorsData));
+                // 为数组分配内存
+                SensorsData.Data.Lux_OPT3001 = (float *)malloc(SenSors_Data_Buf_Num * sizeof(float));
+                SensorsData.Data.Pressure_MPL3115 = (float *)malloc(SenSors_Data_Buf_Num * sizeof(float));
+                SensorsData.Data.Temper_HDC1000 = (uint32_t *)malloc(SenSors_Data_Buf_Num * sizeof(uint32_t));
+                SensorsData.Data.Humidi_HDC1000 = (uint32_t *)malloc(SenSors_Data_Buf_Num * sizeof(uint32_t));
+                // 初始化结构体部分变量
+                SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
+                SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
+                SensorsData.Min.Temper_HDC1000 = 0xffff;
+                SensorsData.Min.Humidi_HDC1000 = 0xffff;
+            }
+
             SensorsData.Data.Lux_OPT3001[SensorsCnt] = OPT3001_Get_Lux();
             SensorsData.Data.Pressure_MPL3115[SensorsCnt] = MPL3115_ReadPressure();
             SensorsData.Data.Temper_HDC1000[SensorsCnt] = HDC1000_Read_Temper();
@@ -159,7 +180,7 @@ void LoRaWAN_Func_Process(void)
                                                             :  NULL;
 
             // clang-format on
-            if (SensorsCnt == 9)
+            if (SensorsCnt == SenSors_Data_Buf_Num - 1)
             {
 
                 for (int i = 0; i < 10; i++)
@@ -179,10 +200,10 @@ void LoRaWAN_Func_Process(void)
                 SensorsData.Average.Temper_HDC1000 -= SensorsData.Min.Temper_HDC1000;
                 SensorsData.Average.Humidi_HDC1000 -= SensorsData.Min.Humidi_HDC1000;
 
-                SensorsData.Average.Lux_OPT3001 /= 8;
-                SensorsData.Average.Pressure_MPL3115 /= 8;
-                SensorsData.Average.Temper_HDC1000 /= 8;
-                SensorsData.Average.Humidi_HDC1000 /= 8;
+                SensorsData.Average.Lux_OPT3001 /= SenSors_Data_Buf_Num - 2;
+                SensorsData.Average.Pressure_MPL3115 /= SenSors_Data_Buf_Num - 2;
+                SensorsData.Average.Temper_HDC1000 /= SenSors_Data_Buf_Num - 2;
+                SensorsData.Average.Humidi_HDC1000 /= SenSors_Data_Buf_Num - 2;
 
                 debug_printf("平均数据：%f, %f, %d, %d",
                              SensorsData.Average.Lux_OPT3001,
@@ -190,21 +211,20 @@ void LoRaWAN_Func_Process(void)
                              SensorsData.Average.Temper_HDC1000,
                              SensorsData.Average.Humidi_HDC1000);
 
-                // 初始化结构体
-                memset(&SensorsData, 0, sizeof(SensorsData_t));
-                SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
-                SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
-                SensorsData.Min.Temper_HDC1000 = 0xffffffff;
-                SensorsData.Min.Humidi_HDC1000 = 0xffffffff;
+                // 释放动态分配的内存
+                free(SensorsData.Data.Lux_OPT3001);
+                free(SensorsData.Data.Pressure_MPL3115);
+                free(SensorsData.Data.Temper_HDC1000);
+                free(SensorsData.Data.Humidi_HDC1000);
             }
 
-            debug_printf("最大值数据：%f, %f, %d, %d",
-                         SensorsData.Max.Lux_OPT3001,
-                         SensorsData.Max.Pressure_MPL3115,
-                         SensorsData.Max.Temper_HDC1000,
-                         SensorsData.Max.Humidi_HDC1000);
+            debug_printf("当前数据：%f, %f, %d, %d",
+                         SensorsData.Data.Lux_OPT3001[SensorsCnt],
+                         SensorsData.Data.Pressure_MPL3115[SensorsCnt],
+                         SensorsData.Data.Temper_HDC1000[SensorsCnt],
+                         SensorsData.Data.Humidi_HDC1000[SensorsCnt]);
 
-            SensorsCnt == SENSORS_DATA_BUF_NUM - 1 ? SensorsCnt = 0 : SensorsCnt++;
+            SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;
         }
     }
     break;
@@ -240,6 +260,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM3)
     {
         // 用户代码
-        Tim3_Counter == (TIM3_SENSORS_DELAY_SECOND * 100) ? Tim3_Counter = 0 : Tim3_Counter++;
+        Tim3_Counter == (Tim3_Sensors_Delay_Secend * 100) ? Tim3_Counter = 0 : Tim3_Counter++;
     }
 }
