@@ -1,0 +1,17 @@
+# User-specific uVision Keil files
+/DebugConfig
+/STM32L476VG_DB
+JLinkLog.txt
+JLinkSettings.ini
+*.uvguix*
+##keil生成，需要忽略的debugconfig和obj目录
+*.bak
+*.scvd
+*.ini
+*.Administrator
+*.hp
+*.uvoptx
+
+DebugConfig/  
+OBJ/
+MDK-ARM/LoRaWAN_Project/LoRaWAN_Project.build_log.htm
