@@ -3,9 +3,9 @@
 <title>Static Call Graph - [LoRaWAN_Project\LoRaWAN_Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image LoRaWAN_Project\LoRaWAN_Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Mon Oct 23 01:46:51 2023
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Mon Oct 23 22:36:39 2023
 <BR><P>
-<H3>Maximum Stack Usage =       1344 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =       1336 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; LoRaWAN_Func_Process &rArr; nodeDataCommunicate &rArr; node_block_send &rArr; nodeResetJoin &rArr; node_block_join &rArr; debug_printf &rArr; vsnprintf &rArr; _printf_char_common &rArr; __printf
 <P>
@@ -421,7 +421,7 @@ Global Symbols
 <P><STRONG><a name="[1d5]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[a1]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1344 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 1336 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; LoRaWAN_Func_Process &rArr; nodeDataCommunicate &rArr; node_block_send &rArr; nodeResetJoin &rArr; node_block_join &rArr; debug_printf &rArr; vsnprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -676,8 +676,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__Heap_Full
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_heap_descriptor
 </UL>
-<BR>[Called By]<UL><LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LoRaWAN_Func_Process
-<LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;down_data_process
+<BR>[Called By]<UL><LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;down_data_process
 </UL>
 
 <P><STRONG><a name="[ab]"></a>free</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, h1_free.o(.text))
@@ -685,8 +684,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_heap_descriptor
 </UL>
-<BR>[Called By]<UL><LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LoRaWAN_Func_Process
-<LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;free_down_info_list
+<BR>[Called By]<UL><LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;free_down_info_list
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;down_data_process
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__Heap_ProvideMemory
 </UL>
@@ -2140,8 +2138,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[15d]"></a>LoRaWAN_Func_Process</STRONG> (Thumb, 1310 bytes, Stack size 64 bytes, app.o(i.LoRaWAN_Func_Process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1344 + Unknown Stack Size
+<P><STRONG><a name="[15d]"></a>LoRaWAN_Func_Process</STRONG> (Thumb, 872 bytes, Stack size 56 bytes, app.o(i.LoRaWAN_Func_Process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 1336 + Unknown Stack Size
 <LI>Call Chain = LoRaWAN_Func_Process &rArr; nodeDataCommunicate &rArr; node_block_send &rArr; nodeResetJoin &rArr; node_block_join &rArr; debug_printf &rArr; vsnprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart2_send_data
@@ -2159,8 +2157,6 @@ Global Symbols
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_ReadPin
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;free
-<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;malloc
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -2677,7 +2673,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[a2]"></a>main</STRONG> (Thumb, 110 bytes, Stack size 0 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1344 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 1336 + Unknown Stack Size
 <LI>Call Chain = main &rArr; LoRaWAN_Func_Process &rArr; nodeDataCommunicate &rArr; node_block_send &rArr; nodeResetJoin &rArr; node_block_join &rArr; debug_printf &rArr; vsnprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Clear_IT

@@ -18,10 +18,10 @@ down_list_t *pphead = NULL;
 uint16_t Tim3_Counter = 0;
 uint8_t *DevEui = "009569000000F554";
 
-extern uint8_t Tim3_Sensors_Delay_Secend = 3;
-extern uint8_t SenSors_Data_Buf_Num = 10;
-uint8_t SensorsCnt = 0;
-SensorsData_t SensorsData; // 创建结构体实例
+extern int Tim3_Sensors_Delay_Secend = 1;
+extern int SenSors_Data_Buf_Num = 5;
+int SensorsCnt = 0;
+SensorsData_t SensorsData;
 
 //-----------------Users application--------------------------
 void LoRaWAN_Func_Process(void)
@@ -29,14 +29,6 @@ void LoRaWAN_Func_Process(void)
     static DEVICE_MODE_T dev_stat = NO_MODE;
 
     uint16_t temper = 0;
-
-    if ((uint8_t)device_mode != PRO_TRAINING_MODE)
-    {
-        free(SensorsData.Data.Lux_OPT3001);
-        free(SensorsData.Data.Pressure_MPL3115);
-        free(SensorsData.Data.Temper_HDC1000);
-        free(SensorsData.Data.Humidi_HDC1000);
-    }
 
     switch ((uint8_t)device_mode)
     {
@@ -134,72 +126,73 @@ void LoRaWAN_Func_Process(void)
             // 开始获取传感器数值
             if (SensorsCnt == 0)
             {
-                // 初始化结构体
-                memset(&SensorsData, 0, sizeof(SensorsData));
-                // 为数组分配内存
-                SensorsData.Data.Lux_OPT3001 = (float *)malloc(SenSors_Data_Buf_Num * sizeof(float));
-                SensorsData.Data.Pressure_MPL3115 = (float *)malloc(SenSors_Data_Buf_Num * sizeof(float));
-                SensorsData.Data.Temper_HDC1000 = (uint32_t *)malloc(SenSors_Data_Buf_Num * sizeof(uint32_t));
-                SensorsData.Data.Humidi_HDC1000 = (uint32_t *)malloc(SenSors_Data_Buf_Num * sizeof(uint32_t));
-                // 初始化结构体部分变量
+                memset(&SensorsData, 0, sizeof(SensorsData_t));
+                // 初始化结构体变量
                 SensorsData.Min.Lux_OPT3001 = 0x7fffffff;
                 SensorsData.Min.Pressure_MPL3115 = 0x7fffffff;
                 SensorsData.Min.Temper_HDC1000 = 0xffff;
                 SensorsData.Min.Humidi_HDC1000 = 0xffff;
             }
 
-            SensorsData.Data.Lux_OPT3001[SensorsCnt] = OPT3001_Get_Lux();
-            SensorsData.Data.Pressure_MPL3115[SensorsCnt] = MPL3115_ReadPressure();
-            SensorsData.Data.Temper_HDC1000[SensorsCnt] = HDC1000_Read_Temper();
-            SensorsData.Data.Humidi_HDC1000[SensorsCnt] = HDC1000_Read_Humidi();
+            SensorsData.Data.Lux_OPT3001 = OPT3001_Get_Lux();
+            SensorsData.Data.Pressure_MPL3115 = MPL3115_ReadPressure();
+            SensorsData.Data.Temper_HDC1000 = HDC1000_Read_Temper();
+            SensorsData.Data.Humidi_HDC1000 = HDC1000_Read_Humidi();
 
-            debug_printf("当前数据：%f, %f, %d, %d",
-                         SensorsData.Data.Lux_OPT3001[SensorsCnt],
-                         SensorsData.Data.Pressure_MPL3115[SensorsCnt],
-                         SensorsData.Data.Temper_HDC1000[SensorsCnt],
-                         SensorsData.Data.Humidi_HDC1000[SensorsCnt]);
+            debug_printf("当前数据：%f, %f, %d, %d\n",
+                         SensorsData.Data.Lux_OPT3001,
+                         SensorsData.Data.Pressure_MPL3115,
+                         SensorsData.Data.Temper_HDC1000,
+                         SensorsData.Data.Humidi_HDC1000);
 
             // 求最大值
             // clang-format off
-            SensorsData.Data.Lux_OPT3001[SensorsCnt]       >= SensorsData.Max.Lux_OPT3001 
-                                                            ?  SensorsData.Max.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Pressure_MPL3115[SensorsCnt]  >= SensorsData.Max.Pressure_MPL3115 
-                                                            ?  SensorsData.Max.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Temper_HDC1000[SensorsCnt]    >= SensorsData.Max.Temper_HDC1000 
-                                                            ?  SensorsData.Max.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Humidi_HDC1000[SensorsCnt]    >= SensorsData.Max.Humidi_HDC1000 
-                                                            ?  SensorsData.Max.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000[SensorsCnt] 
-                                                            :  NULL; 
+            SensorsData.Data.Lux_OPT3001        >=  SensorsData.Max.Lux_OPT3001 
+                                                 ?  SensorsData.Max.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001
+                                                 :  NULL; 
+            SensorsData.Data.Pressure_MPL3115   >=  SensorsData.Max.Pressure_MPL3115 
+                                                 ?  SensorsData.Max.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115
+                                                 :  NULL; 
+            SensorsData.Data.Temper_HDC1000     >=  SensorsData.Max.Temper_HDC1000 
+                                                 ?  SensorsData.Max.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000
+                                                 :  NULL; 
+            SensorsData.Data.Humidi_HDC1000     >=  SensorsData.Max.Humidi_HDC1000 
+                                                 ?  SensorsData.Max.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000 
+                                                 :  NULL; 
             // 求最小值
-            SensorsData.Data.Lux_OPT3001[SensorsCnt]       <= SensorsData.Min.Lux_OPT3001 
-                                                            ?  SensorsData.Min.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Pressure_MPL3115[SensorsCnt]  <= SensorsData.Min.Pressure_MPL3115 
-                                                            ?  SensorsData.Min.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Temper_HDC1000[SensorsCnt]    <= SensorsData.Min.Temper_HDC1000 
-                                                            ?  SensorsData.Min.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000[SensorsCnt] 
-                                                            :  NULL; 
-            SensorsData.Data.Humidi_HDC1000[SensorsCnt]    <= SensorsData.Min.Humidi_HDC1000 
-                                                            ?  SensorsData.Min.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000[SensorsCnt] 
-                                                            :  NULL;
-
+            SensorsData.Data.Lux_OPT3001        <=  SensorsData.Min.Lux_OPT3001 
+                                                 ?  SensorsData.Min.Lux_OPT3001 = SensorsData.Data.Lux_OPT3001
+                                                 :  NULL; 
+            SensorsData.Data.Pressure_MPL3115   <=  SensorsData.Min.Pressure_MPL3115 
+                                                 ?  SensorsData.Min.Pressure_MPL3115 = SensorsData.Data.Pressure_MPL3115
+                                                 :  NULL; 
+            SensorsData.Data.Temper_HDC1000     <=  SensorsData.Min.Temper_HDC1000 
+                                                 ?  SensorsData.Min.Temper_HDC1000 = SensorsData.Data.Temper_HDC1000
+                                                 :  NULL; 
+            SensorsData.Data.Humidi_HDC1000     <=  SensorsData.Min.Humidi_HDC1000 
+                                                 ?  SensorsData.Min.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000 
+                                                 :  NULL;
             // clang-format on
+            debug_printf("最大值：%f, %f, %d, %d\n",
+                         SensorsData.Max.Lux_OPT3001,
+                         SensorsData.Max.Pressure_MPL3115,
+                         SensorsData.Max.Temper_HDC1000,
+                         SensorsData.Max.Humidi_HDC1000);
+            debug_printf("最小值：%f, %f, %d, %d\n",
+                         SensorsData.Min.Lux_OPT3001,
+                         SensorsData.Min.Pressure_MPL3115,
+                         SensorsData.Min.Temper_HDC1000,
+                         SensorsData.Min.Humidi_HDC1000);
+
+            //将数据累加进Average中暂存
+            SensorsData.Average.Lux_OPT3001 += SensorsData.Data.Lux_OPT3001;
+            SensorsData.Average.Pressure_MPL3115 += SensorsData.Data.Pressure_MPL3115;
+            SensorsData.Average.Temper_HDC1000 += SensorsData.Data.Temper_HDC1000;
+            SensorsData.Average.Humidi_HDC1000 += SensorsData.Data.Humidi_HDC1000;
+
             // 获取传感器数值结束，数据处理
             if (SensorsCnt == SenSors_Data_Buf_Num - 1)
             {
-
-                for (int i = 0; i < 10; i++)
-                {
-                    SensorsData.Average.Lux_OPT3001 += SensorsData.Data.Lux_OPT3001[i];
-                    SensorsData.Average.Pressure_MPL3115 += SensorsData.Data.Pressure_MPL3115[i];
-                    SensorsData.Average.Temper_HDC1000 += SensorsData.Data.Temper_HDC1000[i];
-                    SensorsData.Average.Humidi_HDC1000 += SensorsData.Data.Humidi_HDC1000[i];
-                }
-
                 SensorsData.Average.Lux_OPT3001 -= SensorsData.Max.Lux_OPT3001;
                 SensorsData.Average.Pressure_MPL3115 -= SensorsData.Max.Pressure_MPL3115;
                 SensorsData.Average.Temper_HDC1000 -= SensorsData.Max.Temper_HDC1000;
@@ -215,17 +208,12 @@ void LoRaWAN_Func_Process(void)
                 SensorsData.Average.Temper_HDC1000 /= (SenSors_Data_Buf_Num - 2);
                 SensorsData.Average.Humidi_HDC1000 /= (SenSors_Data_Buf_Num - 2);
 
-                debug_printf("平均数据：%f, %f, %d, %d",
+                debug_printf("平均数据：%f, %f, %d, %d\n",
                              SensorsData.Average.Lux_OPT3001,
                              SensorsData.Average.Pressure_MPL3115,
                              SensorsData.Average.Temper_HDC1000,
                              SensorsData.Average.Humidi_HDC1000);
 
-                // 释放动态分配的内存
-                free(SensorsData.Data.Lux_OPT3001);
-                free(SensorsData.Data.Pressure_MPL3115);
-                free(SensorsData.Data.Temper_HDC1000);
-                free(SensorsData.Data.Humidi_HDC1000);
             }
 
             SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;

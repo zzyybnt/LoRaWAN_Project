@@ -17,24 +17,24 @@ typedef struct
 {
     struct
     {
-        float* Lux_OPT3001;
-        float* Pressure_MPL3115;
-        uint32_t* Temper_HDC1000;
-        uint32_t* Humidi_HDC1000;
+        float Lux_OPT3001;
+        float Pressure_MPL3115;
+        uint16_t Temper_HDC1000;
+        uint16_t Humidi_HDC1000;
     } Data;
     struct
     {
         float Lux_OPT3001;
         float Pressure_MPL3115;
-        uint32_t Temper_HDC1000;
-        uint32_t Humidi_HDC1000;
+        uint16_t Temper_HDC1000;
+        uint16_t Humidi_HDC1000;
     } Max;
     struct
     {
         float Lux_OPT3001;
         float Pressure_MPL3115;
-        uint32_t Temper_HDC1000;
-        uint32_t Humidi_HDC1000;
+        uint16_t Temper_HDC1000;
+        uint16_t Humidi_HDC1000;
     } Min;
     struct
     {
@@ -65,5 +65,6 @@ typedef struct
 
 void LoRaWAN_Func_Process(void);
 void LoRaWAN_Borad_Info_Print(void);
+float TwoFloatMax(float *a, float b);
 
 #endif
