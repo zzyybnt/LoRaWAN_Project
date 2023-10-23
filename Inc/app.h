@@ -13,6 +13,11 @@
 /** 入网超时时间：120s */
 #define JOIN_TIME_120_SEC 120
 
+typedef enum {
+    MAIN_GUI = 0,
+    
+} GUI_Switch_t;
+
 typedef struct
 {
     struct
@@ -65,6 +70,6 @@ typedef struct
 
 void LoRaWAN_Func_Process(void);
 void LoRaWAN_Borad_Info_Print(void);
-float TwoFloatMax(float *a, float b);
+void GUI_Show(GUI_Switch_t GUI);
 
 #endif

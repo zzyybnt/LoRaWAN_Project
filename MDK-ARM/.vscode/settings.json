@@ -4,6 +4,8 @@
         "opt3001.h": "c",
         "stdint.h": "c",
         "common.h": "c",
-        "mpl3115.h": "c"
+        "mpl3115.h": "c",
+        "limits": "c",
+        "memory": "c"
     }
 }

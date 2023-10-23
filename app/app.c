@@ -23,6 +23,8 @@ extern int SenSors_Data_Buf_Num = 5;
 int SensorsCnt = 0;
 SensorsData_t SensorsData;
 
+GUI_Switch_t GUI_Now;
+
 //-----------------Users application--------------------------
 void LoRaWAN_Func_Process(void)
 {
@@ -114,10 +116,7 @@ void LoRaWAN_Func_Process(void)
         {
             dev_stat = PRO_TRAINING_MODE;
             debug_printf("\r\n[Project Mode]\r\n");
-            LCD_Clear(WHITE);
-            LCD_ShowString(5, 5, "[Project Mode]", BLUE);
-            LCD_ShowString(5, 5 + (1 * 16), "[DevEui]:", BLUE);
-            LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLUE);
+            GUI_Show(GUI_Now);
         }
 
         /* 你的实验代码位置 */
@@ -184,7 +183,7 @@ void LoRaWAN_Func_Process(void)
                          SensorsData.Min.Temper_HDC1000,
                          SensorsData.Min.Humidi_HDC1000);
 
-            //将数据累加进Average中暂存
+            // 将数据累加进Average中暂存
             SensorsData.Average.Lux_OPT3001 += SensorsData.Data.Lux_OPT3001;
             SensorsData.Average.Pressure_MPL3115 += SensorsData.Data.Pressure_MPL3115;
             SensorsData.Average.Temper_HDC1000 += SensorsData.Data.Temper_HDC1000;
@@ -213,7 +212,6 @@ void LoRaWAN_Func_Process(void)
                              SensorsData.Average.Pressure_MPL3115,
                              SensorsData.Average.Temper_HDC1000,
                              SensorsData.Average.Humidi_HDC1000);
-
             }
 
             SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;
@@ -245,6 +243,22 @@ void LoRaWAN_Borad_Info_Print(void)
     LEDALL_ON;
     HAL_Delay(100);
     LEDALL_OFF;
+}
+
+void GUI_Show(GUI_Switch_t GUI)
+{
+    switch (GUI)
+    {
+    case MAIN_GUI:
+        LCD_Clear(WHITE);
+        LCD_ShowString(5, 5, "[Project Mode]", BLUE);
+        LCD_ShowString(5, 5 + (1 * 16), "[DevEui]:", BLUE);
+        LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLUE);
+        break;
+
+    default:
+        break;
+    }
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
