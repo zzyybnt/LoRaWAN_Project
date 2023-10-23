@@ -14,6 +14,10 @@ void XPT2046_init(void)
     XPT2046_CS_HIGH();
     XPT2046_CLK_HIGH();
     XPT2046_D_OUT_HIGH();
+    Pen_Point.xfac = 0.128617;
+    Pen_Point.yfac = -0.167765;
+    Pen_Point.xoff = -10;
+    Pen_Point.yoff = 332;
 }
 
 /* 函数:SPI方式写一个字节

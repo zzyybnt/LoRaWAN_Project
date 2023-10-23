@@ -40,3 +40,4 @@ lorawan_project\xpt2046.o: ../Core/Inc/main.h
 lorawan_project\xpt2046.o: ../Inc/board/lcd/ST7789v.h
 lorawan_project\xpt2046.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 lorawan_project\xpt2046.o: ../Inc/app.h
+lorawan_project\xpt2046.o: ../Core/Inc/usart.h
