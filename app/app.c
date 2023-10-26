@@ -23,6 +23,7 @@ uint8_t UP_DataCnt = 0;
 uint8_t UP_DataBuf[9] = {0xAA, 0xF5, 0x54, 0, 0, 0, 0, 0, 0x0F};
 uint8_t UP_Data_Status[26] = {0};
 uint8_t DN_Data_Buf[1024] = {0};
+uint8_t Receice_Down_Data;
 
 extern int Tim3_Sensors_Delay_Secend = 1;
 extern int SenSors_Data_Buf_Num = 5;
@@ -208,6 +209,15 @@ void LoRaWAN_Func_Process(void)
                              SensorsData.Average.Temper_HDC1000,
                              SensorsData.Average.Humidi_HDC1000);
 
+                SensorsData.Average.Lux_OPT3001 > 300 ? HAL_GPIO_WritePin(GPIOD, GPIO_PIN_7, GPIO_PIN_RESET)
+                                                      : HAL_GPIO_WritePin(GPIOD, GPIO_PIN_7, GPIO_PIN_SET);
+                SensorsData.Average.Pressure_MPL3115 > 101000 ? HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET)
+                                                      : HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
+                SensorsData.Average.Lux_OPT3001 > 30000 ? HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET)
+                                                      : HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+                SensorsData.Average.Lux_OPT3001 > 60000 ? HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET)
+                                                      : HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
+
                 int integerPart = 0;
                 int decimalPart = 0;
                 switch (SensorType)
@@ -248,8 +258,8 @@ void LoRaWAN_Func_Process(void)
 
                 UP_DataCnt == 0xFF ? UP_DataCnt = 0 : UP_DataCnt++;
 
-                for (int i = 0; i < 9; i++)
-                    debug_printf("%02X ", UP_DataBuf[i]);
+                // for (int i = 0; i < 9; i++)
+                //     debug_printf("%02X ", UP_DataBuf[i]);
 
                 execution_status_t comm_status = nodeDataCommunicate(UP_DataBuf, 9, &pphead);
                 if (comm_status == NODE_COMM_SUCC)
@@ -286,9 +296,9 @@ void LoRaWAN_Func_Process(void)
             {
                 sprintf((DN_Data_Buf + (n * 2)), "%02X", UART_TO_LRM_RECEIVE_BUFFER[n]);
             }
-            debug_printf("lpuart1²úÉúÖÐ¶Ï");
 
             usart2_send_data(UART_TO_LRM_RECEIVE_BUFFER, UART_TO_LRM_RECEIVE_LENGTH);
+            GUI_Show(GUI_Now);
         }
     }
     break;

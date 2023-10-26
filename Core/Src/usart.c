@@ -25,6 +25,8 @@
 usart_recv_t Usart1_RX;
 usart_recv_t Usart2_RX;
 usart_recv_t LPUsart1_RX;
+
+extern uint8_t Receice_Down_Data;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef hlpuart1;

@@ -587,7 +587,7 @@ static execution_status_t node_block_send(uint8_t *buffer, uint8_t size, down_li
             UART_TO_PC_WRITE_DATA(UART_TO_LRM_RECEIVE_BUFFER,UART_TO_LRM_RECEIVE_LENGTH);
 
             /* 获取下行数据 */
-            down_data_process(list_head);
+            // down_data_process(list_head);
         }
         else
         {
