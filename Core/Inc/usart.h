@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+extern uint8_t Receice_Down_Data;
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef hlpuart1;

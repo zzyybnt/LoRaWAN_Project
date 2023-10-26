@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "app.h"
@@ -17,11 +18,17 @@ down_list_t *pphead = NULL;
 
 uint16_t Tim3_Counter = 0;
 uint8_t *DevEui = "009569000000F554";
+uint8_t UP_DataBuf_str[28] = {0};
+uint8_t UP_DataCnt = 0;
+uint8_t UP_DataBuf[9] = {0xAA, 0xF5, 0x54, 0, 0, 0, 0, 0, 0x0F};
+uint8_t UP_Data_Status[26] = {0};
+uint8_t DN_Data_Buf[1024] = {0};
 
 extern int Tim3_Sensors_Delay_Secend = 1;
 extern int SenSors_Data_Buf_Num = 5;
 int SensorsCnt = 0;
 SensorsData_t SensorsData;
+SENSOR_Type_t SensorType = LUX_SENSOR;
 
 GUI_Switch_t GUI_Now;
 
@@ -43,7 +50,7 @@ void LoRaWAN_Func_Process(void)
             dev_stat = CMD_CONFIG_MODE;
             debug_printf("\r\n[Command Mode]\r\n");
             LCD_Clear(WHITE);
-            LCD_ShowString(5, 5, "[Command Mode]", BLUE);
+            LCD_ShowString(5 + (8 * 8), 5, "[Command Mode]", BLUE);
 
             nodeGpioConfig(wake, wakeup);
             nodeGpioConfig(mode, command);
@@ -72,13 +79,15 @@ void LoRaWAN_Func_Process(void)
             dev_stat = DATA_TRANSPORT_MODE;
             debug_printf("\r\n[Transperant Mode]\r\n");
             LCD_Clear(WHITE);
-            LCD_ShowString(5, 5, "[Transperant Mode]", BLUE);
+            LCD_ShowString(5 + (6 * 8), 5, "[Transperant Mode]", BLUE);
 
             /* 模块入网判断 */
             if (nodeJoinNet(JOIN_TIME_120_SEC) == false)
             {
                 return;
             }
+
+            LCD_ShowString(5 + (6 * 8), 5 + (9 * 16), "Join seccussfully", BLUE);
 
             temper = HDC1000_Read_Temper() / 1000;
 
@@ -111,12 +120,15 @@ void LoRaWAN_Func_Process(void)
     /*工程模式*/
     case PRO_TRAINING_MODE:
     {
-        /* 如果不是Class C云平台数据采集模式, 则进入if语句,只执行一次 */
+        /* 如果不是工程模式, 则进入if语句,只执行一次 */
         if (dev_stat != PRO_TRAINING_MODE)
         {
             dev_stat = PRO_TRAINING_MODE;
             debug_printf("\r\n[Project Mode]\r\n");
             GUI_Show(GUI_Now);
+
+            SensorsCnt = 0;
+            Receice_Down_Data = 0;
         }
 
         /* 你的实验代码位置 */
@@ -137,12 +149,6 @@ void LoRaWAN_Func_Process(void)
             SensorsData.Data.Pressure_MPL3115 = MPL3115_ReadPressure();
             SensorsData.Data.Temper_HDC1000 = HDC1000_Read_Temper();
             SensorsData.Data.Humidi_HDC1000 = HDC1000_Read_Humidi();
-
-            debug_printf("当前数据：%f, %f, %d, %d\n",
-                         SensorsData.Data.Lux_OPT3001,
-                         SensorsData.Data.Pressure_MPL3115,
-                         SensorsData.Data.Temper_HDC1000,
-                         SensorsData.Data.Humidi_HDC1000);
 
             // 求最大值
             // clang-format off
@@ -172,17 +178,6 @@ void LoRaWAN_Func_Process(void)
                                                  ?  SensorsData.Min.Humidi_HDC1000 = SensorsData.Data.Humidi_HDC1000 
                                                  :  NULL;
             // clang-format on
-            debug_printf("最大值：%f, %f, %d, %d\n",
-                         SensorsData.Max.Lux_OPT3001,
-                         SensorsData.Max.Pressure_MPL3115,
-                         SensorsData.Max.Temper_HDC1000,
-                         SensorsData.Max.Humidi_HDC1000);
-            debug_printf("最小值：%f, %f, %d, %d\n",
-                         SensorsData.Min.Lux_OPT3001,
-                         SensorsData.Min.Pressure_MPL3115,
-                         SensorsData.Min.Temper_HDC1000,
-                         SensorsData.Min.Humidi_HDC1000);
-
             // 将数据累加进Average中暂存
             SensorsData.Average.Lux_OPT3001 += SensorsData.Data.Lux_OPT3001;
             SensorsData.Average.Pressure_MPL3115 += SensorsData.Data.Pressure_MPL3115;
@@ -207,14 +202,93 @@ void LoRaWAN_Func_Process(void)
                 SensorsData.Average.Temper_HDC1000 /= (SenSors_Data_Buf_Num - 2);
                 SensorsData.Average.Humidi_HDC1000 /= (SenSors_Data_Buf_Num - 2);
 
-                debug_printf("平均数据：%f, %f, %d, %d\n",
+                debug_printf("\r\n平均数据:%f, %f, %d, %d\r\n",
                              SensorsData.Average.Lux_OPT3001,
                              SensorsData.Average.Pressure_MPL3115,
                              SensorsData.Average.Temper_HDC1000,
                              SensorsData.Average.Humidi_HDC1000);
+
+                int integerPart = 0;
+                int decimalPart = 0;
+                switch (SensorType)
+                {
+                case LUX_SENSOR:
+                    integerPart = (int)SensorsData.Average.Lux_OPT3001;
+                    decimalPart = (int)((SensorsData.Average.Lux_OPT3001 - integerPart) * 100);
+                    break;
+                case PRESSURE_SNESOR:
+                    SensorsData.Average.Pressure_MPL3115 /= 1000;
+                    integerPart = (int)SensorsData.Average.Pressure_MPL3115;
+                    decimalPart = (int)((SensorsData.Average.Pressure_MPL3115 - integerPart) * 100);
+                    break;
+                case TEMPER_SENSOR:
+                    integerPart = SensorsData.Average.Temper_HDC1000 / 1000;
+                    decimalPart = (SensorsData.Average.Temper_HDC1000 % 1000) / 10;
+                    break;
+                case HUMIDI_SENSOR:
+                    integerPart = SensorsData.Average.Humidi_HDC1000 / 1000;
+                    decimalPart = (SensorsData.Average.Humidi_HDC1000 % 1000) / 10;
+                    break;
+
+                default:
+                    break;
+                }
+                uint8_t integerPart_H = (integerPart & 0xFF00) >> 2;
+                uint8_t integerPart_L = integerPart & 0x00FF;
+
+                UP_DataBuf[3] = (uint8_t)SensorType;
+                UP_DataBuf[4] = (uint8_t)UP_DataCnt;
+                UP_DataBuf[5] = (uint8_t)integerPart_H;
+                UP_DataBuf[6] = (uint8_t)integerPart_L;
+                UP_DataBuf[7] = (uint8_t)decimalPart;
+
+                sprintf(UP_DataBuf_str, "%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+                        UP_DataBuf[0], UP_DataBuf[1], UP_DataBuf[2], UP_DataBuf[3], UP_DataBuf[4],
+                        UP_DataBuf[5], UP_DataBuf[6], UP_DataBuf[7], UP_DataBuf[8]);
+
+                UP_DataCnt == 0xFF ? UP_DataCnt = 0 : UP_DataCnt++;
+
+                for (int i = 0; i < 9; i++)
+                    debug_printf("%02X ", UP_DataBuf[i]);
+
+                execution_status_t comm_status = nodeDataCommunicate(UP_DataBuf, 9, &pphead);
+                if (comm_status == NODE_COMM_SUCC)
+                    sprintf(UP_Data_Status, "Comm Success.");
+                else
+                    sprintf(UP_Data_Status, "Comm Fail,err:0x%02X.", comm_status);
+
+                GUI_Show(GUI_Now);
             }
 
             SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;
+        }
+
+        /* 等待usart2产生中断 */
+        if (UART_TO_PC_RECEIVE_FLAG && GET_BUSY_LEVEL) // Ensure BUSY is high before sending data
+        {
+            UART_TO_PC_RECEIVE_FLAG = 0;
+            nodeDataCommunicate((uint8_t *)UART_TO_PC_RECEIVE_BUFFER, UART_TO_PC_RECEIVE_LENGTH, &pphead);
+        }
+
+        /* 如果模块正忙, 则发送数据无效，并给出警告信息 */
+        else if (UART_TO_PC_RECEIVE_FLAG && (GET_BUSY_LEVEL == 0))
+        {
+            UART_TO_PC_RECEIVE_FLAG = 0;
+            debug_printf("-. Warning: Don't send data now! Module is busy!\r\n");
+        }
+
+        /* 等待lpuart1产生中断 */
+        if (Receice_Down_Data)
+        {
+            Receice_Down_Data = 0;
+
+            for (int n = 0; n < UART_TO_LRM_RECEIVE_LENGTH; n++)
+            {
+                sprintf((DN_Data_Buf + (n * 2)), "%02X", UART_TO_LRM_RECEIVE_BUFFER[n]);
+            }
+            debug_printf("lpuart1产生中断");
+
+            usart2_send_data(UART_TO_LRM_RECEIVE_BUFFER, UART_TO_LRM_RECEIVE_LENGTH);
         }
     }
     break;
@@ -251,9 +325,15 @@ void GUI_Show(GUI_Switch_t GUI)
     {
     case MAIN_GUI:
         LCD_Clear(WHITE);
-        LCD_ShowString(5, 5, "[Project Mode]", BLUE);
-        LCD_ShowString(5, 5 + (1 * 16), "[DevEui]:", BLUE);
-        LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLUE);
+        LCD_ShowString(5 + (8 * 8), 5 + (0 * 16), "[Project Mode]", BLUE);
+        LCD_ShowString(5 + (0 * 8), 5 + (1 * 16), "[DevEui]:", BLUE);
+        LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DevEui, BLACK);
+        LCD_ShowString(5 + (0 * 8), 5 + (3 * 16), "[UP]:", BLUE);
+        LCD_ShowString(5 + (5 * 8), 5 + (3 * 16), UP_DataBuf_str, BLACK);
+        LCD_ShowString(5 + (0 * 8), 5 + (4 * 16), "[STATUS]:", BLUE);
+        LCD_ShowString(5 + (9 * 8), 5 + (4 * 16), UP_Data_Status, RED);
+        LCD_ShowString(5 + (0 * 8), 5 + (6 * 16), "[DN]:", BLUE);
+        LCD_ShowString(5 + (5 * 8), 5 + (6 * 16), DN_Data_Buf, BLACK);
         break;
 
     default:

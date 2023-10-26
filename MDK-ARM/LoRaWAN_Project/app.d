@@ -1,4 +1,5 @@
 lorawan_project\app.o: ..\app\app.c
+lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 lorawan_project\app.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 lorawan_project\app.o: ../Inc/app.h

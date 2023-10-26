@@ -18,6 +18,13 @@ typedef enum {
     
 } GUI_Switch_t;
 
+typedef enum {
+    LUX_SENSOR = 0x01,
+    PRESSURE_SNESOR,
+    TEMPER_SENSOR,
+    HUMIDI_SENSOR,
+} SENSOR_Type_t;
+
 typedef struct
 {
     struct

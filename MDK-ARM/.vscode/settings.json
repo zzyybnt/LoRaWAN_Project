@@ -6,6 +6,7 @@
         "common.h": "c",
         "mpl3115.h": "c",
         "limits": "c",
-        "memory": "c"
+        "memory": "c",
+        "app.h": "c"
     }
 }

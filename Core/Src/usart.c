@@ -613,6 +613,7 @@ void lpusart1_receive_idle(void)
         temp = hlpuart1.hdmarx->Instance->CNDTR;
         LPUsart1_RX.rx_len =  RECEIVELEN - temp;
         LPUsart1_RX.receive_flag = 1;
+        Receice_Down_Data = 1;
         HAL_UART_Receive_DMA(&hlpuart1,LPUsart1_RX.RX_Buf,RECEIVELEN);
     }
 }
