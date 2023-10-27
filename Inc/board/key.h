@@ -15,5 +15,6 @@ typedef struct
 } KEY;
 
 void KEY_DO(KEY *key_temp,DEVICE_MODE_T *Device_Mode_temp);
+void Touch_Key(uint16_t x,uint16_t y);
 
 #endif

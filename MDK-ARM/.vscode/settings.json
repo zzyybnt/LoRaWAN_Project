@@ -7,6 +7,8 @@
         "mpl3115.h": "c",
         "limits": "c",
         "memory": "c",
-        "app.h": "c"
+        "app.h": "c",
+        "key.h": "c",
+        "lcd_app.h": "c"
     }
 }

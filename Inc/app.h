@@ -15,7 +15,8 @@
 
 typedef enum {
     MAIN_GUI = 0,
-    
+    PARAM_CONFIG_GUI,
+
 } GUI_Switch_t;
 
 typedef enum {
@@ -78,5 +79,9 @@ typedef struct
 void LoRaWAN_Func_Process(void);
 void LoRaWAN_Borad_Info_Print(void);
 void GUI_Show(GUI_Switch_t GUI);
+void Fn_MainfirstIn(int a);
+void Fn_ConfigfirstIn(int a);
+void Fn_Config_select(uint8_t SelectNum);
+void Fn_Config_set(uint8_t config_num);
 
 #endif

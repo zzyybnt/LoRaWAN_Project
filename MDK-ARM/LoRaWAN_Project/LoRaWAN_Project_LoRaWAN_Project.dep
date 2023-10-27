@@ -49,7 +49,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E53505C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E53505C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x5E53505C)
 I (../Inc/common/common.h)(0x62B5D8D8)
-I (../Inc/app.h)(0x653A9CC4)
+I (../Inc/app.h)(0x653BFA76)
 I (../Inc/board/sensors/hdc1000.h)(0x62B5D8D8)
 I (../Inc/board/sensors/opt3001.h)(0x62B5D8D8)
 I (../Inc/board/sensors/MPL3115.h)(0x62B5D8D8)
@@ -353,11 +353,11 @@ I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h)(0x6534CEDC)
-F (..\app\app.c)(0x653AA337)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\app.o --omf_browse lorawan_project\app.crf --depend lorawan_project\app.d)
+F (..\app\app.c)(0x653BFFD1)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\app.o --omf_browse lorawan_project\app.crf --depend lorawan_project\app.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E53505C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E53505C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x5E53505C)
-I (../Inc/app.h)(0x653A9CC4)
+I (../Inc/app.h)(0x653BFA76)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E53505C)
 I (../Core/Inc/usart.h)(0x653A9DA2)
 I (../Core/Inc/main.h)(0x6534CEF5)
@@ -403,8 +403,9 @@ I (../Inc/board/sensors/opt3001.h)(0x62B5D8D8)
 I (../Inc/board/sensors/MPL3115.h)(0x62B5D8D8)
 I (../Inc/board/sensors_test.h)(0x62B5D8D8)
 I (../Inc/board/lcd/ST7789v.h)(0x62B5D8D8)
-F (..\board\key.c)(0x62B5D8D7)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\key.o --omf_browse lorawan_project\key.crf --depend lorawan_project\key.d)
-I (../Inc/board/key.h)(0x62B5D8D8)
+I (../Inc/board/lcd/XPT2046.h)(0x62B5D8D8)
+F (..\board\key.c)(0x653BFCFD)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\key.o --omf_browse lorawan_project\key.crf --depend lorawan_project\key.d)
+I (../Inc/board/key.h)(0x653BBBCE)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h)(0x6534CEDC)
 I (../Core/Inc/stm32l4xx_hal_conf.h)(0x653A916E)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h)(0x6534CEDC)
@@ -439,7 +440,7 @@ I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h)(0x6534CEDC)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h)(0x6534CEDC)
-I (../Inc/app.h)(0x653A9CC4)
+I (../Inc/app.h)(0x653BFA76)
 I (../Inc/common/common.h)(0x62B5D8D8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E53505C)
 I (../Core/Inc/gpio.h)(0x6534CEF3)
@@ -809,7 +810,7 @@ I (../Inc/board/lcd/XPT2046.h)(0x62B5D8D8)
 I (../Core/Inc/gpio.h)(0x6534CEF3)
 I (../Core/Inc/main.h)(0x6534CEF5)
 I (../Core/Inc/tim.h)(0x6534CEF5)
-F (..\board\lcd\XPT2046.c)(0x65368AFE)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\xpt2046.o --omf_browse lorawan_project\xpt2046.crf --depend lorawan_project\xpt2046.d)
+F (..\board\lcd\XPT2046.c)(0x653BB419)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\xpt2046.o --omf_browse lorawan_project\xpt2046.crf --depend lorawan_project\xpt2046.d)
 I (../Inc/board/lcd/XPT2046.h)(0x62B5D8D8)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h)(0x6534CEDC)
 I (../Core/Inc/stm32l4xx_hal_conf.h)(0x653A916E)
@@ -849,7 +850,7 @@ I (../Core/Inc/gpio.h)(0x6534CEF3)
 I (../Core/Inc/main.h)(0x6534CEF5)
 I (../Inc/board/lcd/ST7789v.h)(0x62B5D8D8)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x5E53505A)
-I (../Inc/app.h)(0x653A9CC4)
+I (../Inc/app.h)(0x653BFA76)
 F (../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c)(0x6534CEDD)(--c99 -c --cpu Cortex-M4.fp.sp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc -I ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I ../Drivers/CMSIS/Include -I ../Inc -I ../Inc/board -I ../Inc/board/lcd -I ../Inc/common -I ../Inc/board/sensors-I.\RTE\_LoRaWAN_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-D__UVISION_VERSION="530" -D_RTE_ -DSTM32L476xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32L476xx-o lorawan_project\stm32l4xx_hal_i2c.o --omf_browse lorawan_project\stm32l4xx_hal_i2c.crf --depend lorawan_project\stm32l4xx_hal_i2c.d)
 I (../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h)(0x6534CEDC)
 I (../Core/Inc/stm32l4xx_hal_conf.h)(0x653A916E)
