@@ -12,6 +12,7 @@
 #include "common.h"
 #include "ST7789v.h"
 #include "XPT2046.h"
+#include "InFlash.h"
 
 extern DEVICE_MODE_T device_mode;
 extern DEVICE_MODE_T *Device_Mode_str;
@@ -26,12 +27,16 @@ char UP_Data_Status[26] = {0};
 char DN_Data_Buf[1024] = {0};
 uint8_t Receice_Down_Data;
 
-extern int Tim3_Sensors_Delay_Secend = 1;
-extern int SenSors_Data_Buf_Num = 5;
+extern int Tim3_Sensors_Delay_Secend = 2;
+extern int SenSors_Data_Buf_Num = 3;
 int SensorsCnt = 0;
 SensorsData_t SensorsData;
-SENSOR_Type_t SensorType = PRESSURE_SNESOR;
+SENSOR_Type_t SensorType = LUX_SENSOR;
 uint8_t SensorType_str[10] = "Lux";
+
+int Tim3_Sensors_Delay_Secend_temp;
+int SenSors_Data_Buf_Num_temp;
+SENSOR_Type_t SensorType_temp;
 
 extern GUI_Switch_t GUI_Now;
 uint8_t MainGui_first_In = 0;
@@ -39,12 +44,24 @@ uint8_t ConfigGui_first_In = 0;
 uint8_t Config_Touch_Num = 9;
 uint8_t Config_select_type = 0;
 
+uint8_t PAGE = 0, TurnPageflag = 1, WriteFlashflag = 0;
+uint8_t EndRead = 1, LPflag = 0;
+uint8_t FlashBuffer[256], DecodeBuffer[20] = {0};
+
+uint8_t Func_Process_first_In = 1;
+
 //-----------------Users application--------------------------
 void LoRaWAN_Func_Process(void)
 {
     static DEVICE_MODE_T dev_stat = NO_MODE;
 
     uint16_t temper = 0;
+
+    if (Func_Process_first_In == 1)
+    {
+        Func_Process_first_In = 0;
+        DecodeFlashData();
+    }
 
     switch ((uint8_t)device_mode)
     {
@@ -140,6 +157,9 @@ void LoRaWAN_Func_Process(void)
             SensorsCnt = 0;
             Receice_Down_Data = 0;
             GUI_Show(GUI_Now);
+            Tim3_Sensors_Delay_Secend_temp = Tim3_Sensors_Delay_Secend;
+            SenSors_Data_Buf_Num_temp = SenSors_Data_Buf_Num;
+            SensorType_temp = SensorType;
             MainGui_first_In = 0;
         }
 
@@ -285,6 +305,16 @@ void LoRaWAN_Func_Process(void)
                     sprintf(UP_Data_Status, "Comm Fail,err:0x%02X.", comm_status);
 
                 GUI_Show(GUI_Now);
+
+                FlashBuffer[0] = 0XF5;
+                FlashBuffer[1] = 0X54;
+                FlashBuffer[2] = (uint8_t)SensorType;
+                FlashBuffer[3] = (uint8_t)UP_DataCnt;
+                FlashBuffer[4] = (uint8_t)integerPart_H;
+                FlashBuffer[5] = (uint8_t)integerPart_L;
+                FlashBuffer[6] = (uint8_t)decimalPart;
+
+                WriteFlash(FlashBuffer, (uint8_t *)ADDR_FLASH_PAGE_256, 256);
             }
 
             SensorsCnt == SenSors_Data_Buf_Num - 1 ? SensorsCnt = 0 : SensorsCnt++;
@@ -312,11 +342,16 @@ void LoRaWAN_Func_Process(void)
             if (GUI_Now == PARAM_CONFIG_GUI)
                 break;
 
+            memset(&FlashBuffer[7], 0, 256 - 7);
+
             for (int n = 0; n < UART_TO_LRM_RECEIVE_LENGTH; n++)
             {
                 sprintf((DN_Data_Buf + (n * 2)), "%02X", UART_TO_LRM_RECEIVE_BUFFER[n]);
             }
 
+            strcpy(&FlashBuffer[7], DN_Data_Buf);
+            WriteFlash(FlashBuffer, (uint8_t *)ADDR_FLASH_PAGE_256, 256);
+            
             usart2_send_data(UART_TO_LRM_RECEIVE_BUFFER, UART_TO_LRM_RECEIVE_LENGTH);
             GUI_Show(GUI_Now);
         }
@@ -351,15 +386,6 @@ void LoRaWAN_Borad_Info_Print(void)
 
 void GUI_Show(GUI_Switch_t GUI)
 {
-    if (SensorType == LUX_SENSOR)
-        sprintf(SensorType_str, "Lux");
-    else if (SensorType == PRESSURE_SNESOR)
-        sprintf(SensorType_str, "Pressure");
-    else if (SensorType == TEMPER_SENSOR)
-        sprintf(SensorType_str, "Temper");
-    else if (SensorType == HUMIDI_SENSOR)
-        sprintf(SensorType_str, "Humidi");
-
     switch (GUI)
     {
     case MAIN_GUI:
@@ -392,18 +418,27 @@ void GUI_Show(GUI_Switch_t GUI)
             Fn_Config_set(3);
             break;
         case 5:
-
+            Fn_Config_set(5);
             break;
         case 6:
             Fn_Config_set(6);
             break;
         case 8:
-
+            Fn_Config_set(8);
             break;
         default:
             break;
         }
-        Config_Touch_Num = 9;//重置触摸标志位
+        Config_Touch_Num = 9; // 重置触摸标志位
+
+        if (SensorType_temp == LUX_SENSOR)
+            sprintf(SensorType_str, "Lux");
+        else if (SensorType_temp == PRESSURE_SNESOR)
+            sprintf(SensorType_str, "Pressure");
+        else if (SensorType_temp == TEMPER_SENSOR)
+            sprintf(SensorType_str, "Temper");
+        else if (SensorType_temp == HUMIDI_SENSOR)
+            sprintf(SensorType_str, "Humidi");
 
         LCD_Clear(WHITE);
         LCD_ShowString(5 + (8 * 8), 5 + (0 * 16), "[Project Mode]", BLUE);
@@ -415,17 +450,17 @@ void GUI_Show(GUI_Switch_t GUI)
 
         LCD_ShowString(1 + 8, 5 + 16 + 20, "Sample", BLUE);
         LCD_ShowString(1 + 8, 5 + 16 + 36, "Interval", BLUE);
-        LCD_ShowNum(1 + 24, 5 + 16 + 52, Tim3_Sensors_Delay_Secend, 2, BLACK);
+        LCD_ShowNum(1 + 24, 5 + 16 + 52, Tim3_Sensors_Delay_Secend_temp, 2, BLACK);
         LCD_ShowString(1 + 8 + 8, 5 + 16 + 68, "seconds", BLACK);
 
         LCD_ShowString(1 + 8 + 80 - 2, 5 + 16 + 20, "Number of", BLUE);
         LCD_ShowString(1 + 8 + 80, 5 + 16 + 36, "Sampling", BLUE);
-        LCD_ShowNum(1 + 24 + 80, 5 + 16 + 52, SenSors_Data_Buf_Num, 2, BLACK);
+        LCD_ShowNum(1 + 24 + 80, 5 + 16 + 52, SenSors_Data_Buf_Num_temp, 2, BLACK);
         LCD_ShowString(1 + 8 + 80 + 8, 5 + 16 + 68, "times", BLACK);
 
         LCD_ShowString(1 + 8 + 160, 5 + 16 + 20, "Sensor", BLUE);
         LCD_ShowString(1 + 8 + 160, 5 + 16 + 36, "Type", BLUE);
-        LCD_ShowNum(1 + 24 + 160, 5 + 16 + 52, SensorType, 2, BLACK);
+        LCD_ShowNum(1 + 24 + 160, 5 + 16 + 52, SensorType_temp, 2, BLACK);
         LCD_ShowString(1 + 8 + 160 + 4, 5 + 16 + 68, SensorType_str, BLACK);
 
         LCD_ShowString(1 + 32, 5 + 16 + 36 + 99, "+1", BLUE);
@@ -434,7 +469,7 @@ void GUI_Show(GUI_Switch_t GUI)
         LCD_ShowString(1 + 16 + 80, 5 + 120, "Upload", BLUE);
         LCD_ShowString(1 + 24 + 80, 5 + 16 + 120, "once", BLUE);
         LCD_ShowString(1 + 20 + 80, 5 + 16 + 136, "every", BLUE);
-        LCD_ShowNum(1 + 24 + 80, 5 + 16 + 152, Tim3_Sensors_Delay_Secend * SenSors_Data_Buf_Num, 3, RED);
+        LCD_ShowNum(1 + 24 + 80, 5 + 16 + 152, Tim3_Sensors_Delay_Secend_temp * SenSors_Data_Buf_Num_temp, 3, RED);
         LCD_ShowString(1 + 8 + 80 + 8, 5 + 16 + 168, "seconds", BLACK);
 
         LCD_ShowString(1 + 24 + 160, 5 + 32 + 120, "Save", BLUE);
@@ -481,26 +516,89 @@ void Fn_Config_set(uint8_t config_num)
     switch (config_num)
     {
     case 3:
-        Config_select_type == 0 && Tim3_Sensors_Delay_Secend < 10 ? Tim3_Sensors_Delay_Secend++ : NULL;
-        Config_select_type == 1 && SenSors_Data_Buf_Num < 20 ? SenSors_Data_Buf_Num++ : NULL;
-        Config_select_type == 2 && SensorType < 4 ? SensorType++ : NULL;
+        Config_select_type == 0 && Tim3_Sensors_Delay_Secend_temp < 10 ? Tim3_Sensors_Delay_Secend_temp++ : NULL;
+        Config_select_type == 1 && SenSors_Data_Buf_Num_temp < 20 ? SenSors_Data_Buf_Num_temp++ : NULL;
+        Config_select_type == 2 && SensorType_temp < 4 ? SensorType_temp++ : NULL;
         break;
 
     case 5:
-        /* code */
+        Tim3_Sensors_Delay_Secend = Tim3_Sensors_Delay_Secend_temp;
+        SenSors_Data_Buf_Num = SenSors_Data_Buf_Num_temp;
+        SensorType = SensorType_temp;
         break;
     case 6:
-        Config_select_type == 0 && Tim3_Sensors_Delay_Secend > 1 ? Tim3_Sensors_Delay_Secend-- : NULL;
-        Config_select_type == 1 && SenSors_Data_Buf_Num > 3 ? SenSors_Data_Buf_Num-- : NULL;
-        Config_select_type == 2 && SensorType > 1 ? SensorType-- : NULL;
+        Config_select_type == 0 && Tim3_Sensors_Delay_Secend_temp > 1 ? Tim3_Sensors_Delay_Secend_temp-- : NULL;
+        Config_select_type == 1 && SenSors_Data_Buf_Num_temp > 3 ? SenSors_Data_Buf_Num_temp-- : NULL;
+        Config_select_type == 2 && SensorType_temp > 1 ? SensorType_temp-- : NULL;
         break;
     case 8:
-        /* code */
+        Tim3_Sensors_Delay_Secend_temp = 1;
+        SenSors_Data_Buf_Num_temp = 5;
+        SensorType_temp = LUX_SENSOR;
         break;
 
     default:
         break;
     }
+}
+
+// 解析Flash数据
+void DecodeFlashData(void)
+{
+    float data = 0;
+
+    memset(FlashBuffer, 0, 256);
+    if (ReadFlash((uint8_t *)ADDR_FLASH_PAGE_256, FlashBuffer, 256) == HAL_OK)
+    {
+        if (FlashBuffer[2] == LUX_SENSOR)
+            sprintf(SensorType_str, "Lux");
+        else if (FlashBuffer[2] == PRESSURE_SNESOR)
+            sprintf(SensorType_str, "Pressure");
+        else if (FlashBuffer[2] == TEMPER_SENSOR)
+            sprintf(SensorType_str, "Temper");
+        else if (FlashBuffer[2] == HUMIDI_SENSOR)
+            sprintf(SensorType_str, "Humidi");
+
+        LCD_Clear(WHITE);
+        LCD_ShowString(76, 5 + (0 * 16), "[Last Data]", BLUE);
+        LCD_ShowString(5 + (0 * 8), 5 + (1 * 16), "[DevEui]:", BLUE);
+        sprintf((char *)DecodeBuffer, "009569000000%02X%02X", FlashBuffer[0], FlashBuffer[1]);
+        LCD_ShowString(5 + (9 * 8), 5 + (1 * 16), DecodeBuffer, BLACK);
+        memset(DecodeBuffer, 0, 20);
+
+        LCD_ShowString(5 + (0 * 8), 5 + (3 * 16), "[Upload Counter]:", BLUE);
+        sprintf((char *)DecodeBuffer, "%d", FlashBuffer[3]);
+        LCD_ShowString(5 + (17 * 8), 5 + (3 * 16), DecodeBuffer, BLACK);
+        memset(DecodeBuffer, 0, 20);
+
+        LCD_ShowString(5 + (0 * 8), 5 + (4 * 16), "[Sensors Type]:", BLUE);
+        sprintf((char *)DecodeBuffer, "0X%02X %s", FlashBuffer[2], SensorType_str);
+        LCD_ShowString(5 + (15 * 8), 5 + (4 * 16), DecodeBuffer, BLACK);
+        memset(DecodeBuffer, 0, 20);
+
+        LCD_ShowString(5 + (0 * 8), 5 + (5 * 16), "[Sensors Data]:", BLUE);
+        data = (float)FlashBuffer[4] * 256 + (float)FlashBuffer[5] + (float)FlashBuffer[6] / 100;
+        switch (FlashBuffer[2])
+        {
+        case 1:
+            sprintf((char *)DecodeBuffer, "%.2f lx", data);
+            break; // 光照
+        case 2:
+            sprintf((char *)DecodeBuffer, "%.2f kPa", data);
+            break; // 气压
+        case 3:
+            sprintf((char *)DecodeBuffer, "%.2f C", data);
+            break; // 温度
+        case 4:
+            sprintf((char *)DecodeBuffer, "%.2f %%", data);
+            break; // 湿度
+        }
+        LCD_ShowString(5 + (15 * 8), 5 + (5 * 16), DecodeBuffer, BLACK);
+        memset(DecodeBuffer, 0, 20);
+        LCD_ShowString(5 + (0 * 8), 5 + (6 * 16), "[Downloaw Data]:", BLUE);
+        LCD_ShowString(5 + (16 * 8), 5 + (6 * 16), &FlashBuffer[7], BLACK);
+    }
+    memset(FlashBuffer, 0, 256);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)

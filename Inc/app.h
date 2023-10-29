@@ -77,6 +77,7 @@ typedef struct
 } DEBUG;
 
 void LoRaWAN_Func_Process(void);
+void DecodeFlashData(void);
 void LoRaWAN_Borad_Info_Print(void);
 void GUI_Show(GUI_Switch_t GUI);
 void Fn_MainfirstIn(int a);

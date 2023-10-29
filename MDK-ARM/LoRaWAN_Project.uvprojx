@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L476xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;../Inc;../Inc/board;../Inc/board/lcd;../Inc/common;../Inc/board/sensors</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;../Inc;../Inc/board;../Inc/board/lcd;../Inc/common;../Inc/board/sensors;..\InFlash</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1959,6 +1959,21 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>InFlash</GroupName>
+          <Files>
+            <File>
+              <FileName>InFlash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\InFlash\InFlash.c</FilePath>
+            </File>
+            <File>
+              <FileName>InFlash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\InFlash\InFlash.h</FilePath>
             </File>
           </Files>
         </Group>

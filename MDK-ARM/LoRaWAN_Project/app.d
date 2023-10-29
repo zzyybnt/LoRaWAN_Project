@@ -50,3 +50,4 @@ lorawan_project\app.o: ../Inc/board/sensors/MPL3115.h
 lorawan_project\app.o: ../Inc/board/sensors_test.h
 lorawan_project\app.o: ../Inc/board/lcd/ST7789v.h
 lorawan_project\app.o: ../Inc/board/lcd/XPT2046.h
+lorawan_project\app.o: ..\InFlash\InFlash.h

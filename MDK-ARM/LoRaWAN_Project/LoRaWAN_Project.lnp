@@ -44,6 +44,7 @@
 "lorawan_project\stm32l4xx_hal_tim.o"
 "lorawan_project\stm32l4xx_hal_tim_ex.o"
 "lorawan_project\system_stm32l4xx.o"
+"lorawan_project\inflash.o"
 --strict --scatter "LoRaWAN_Project\LoRaWAN_Project.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
